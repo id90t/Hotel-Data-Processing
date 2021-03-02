@@ -24,4 +24,8 @@ TBD
 
 #### training images based on the images
 - run model.ipynb
+
+
+
 Note: still in process identify missing supporting files and latest updates may be required to get the code to be fully functional.
+Also need to audit the files for any hard-coded credentials before adding them.
