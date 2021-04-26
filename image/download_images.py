@@ -34,20 +34,30 @@ async def process_row(row, session, base_dir, image_dir, by_group):
     if os.path.exists(image_path) is False:
         Path(image_path).mkdir(parents=True, exist_ok=True)
         print('created directory', image_path, flush=True)
-    full_image_path = image_path + '/' + picture_name_of(row.image)
-    await fetch(session, 'https:' + row.image, full_image_path)
+    name = picture_name_of(row.image)
+    if name is None:
+        print('skipping ' + row.image, flush=True)
+    else:
+#         print('fetching ' + row.image, flush=True)
+        await fetch(session, 'https:' + row.image, image_path + '/' + name)
 
 
 def picture_name_of(value):
     image_name = value.rsplit('/', 1)
-    return image_name[1]
+    try:
+        if len(image_name) < 2:
+            return None
+        return image_name[1]
+    except Exception as e:
+        print('====>', value)
+        raise e
 
 
 async def fetch(session, url, full_image_path):
     try:
         if not Path(full_image_path).exists():
             async with session.get(url, ssl=False) as resp:
-                # print('fetching ... ... ' + url, resp.status, flush=True)
+#                 print('fetching ... ... ' + url, resp.status, flush=True)
                 if resp.status == 200:
                     async with aiofiles.open(full_image_path, mode='wb') as f:
                         await f.write(await resp.read())
@@ -60,4 +70,4 @@ async def fetch(session, url, full_image_path):
 
 
 if __name__ == "__main__":
-    asyncio.run(async_process_csv('./hotel_images/valid/images.csv', '.', 'hotel_images', 'valid', 20))
+    asyncio.run(async_process_csv('./m_images/train/images.csv', '.', 'm_images', 'train', 20))
